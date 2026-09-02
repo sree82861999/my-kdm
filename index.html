@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Periodic Table Flashcard Tester</title>
+    <title>Dynamic Periodic Table Flashcards</title>
     <style>
         :root {
-            --bg-dark: #0f172a;
-            --card-bg: rgba(30, 41, 59, 0.85);
-            --accent: #38bdf8;
-            --accent-glow: rgba(56, 189, 248, 0.4);
+            --bg-dark: #070a12;
+            --card-bg: rgba(20, 28, 45, 0.85);
+            --theme-color: #38bdf8;
+            --theme-glow: rgba(56, 189, 248, 0.5);
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --success: #34d399;
@@ -18,7 +18,7 @@
 
         body {
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: linear-gradient(135deg, #090d16 0%, #1e1b4b 100%);
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #0d1322 100%);
             min-height: 100vh;
             margin: 0;
             padding: 20px;
@@ -27,6 +27,8 @@
             align-items: center;
             justify-content: center;
             color: var(--text-main);
+            box-sizing: border-box;
+            transition: background 0.8s ease;
         }
 
         header {
@@ -36,10 +38,10 @@
 
         h1 {
             margin: 0 0 5px 0;
-            font-size: 2rem;
-            background: linear-gradient(to right, #38bdf8, #818cf8, #c084fc);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-size: 2.2rem;
+            color: var(--theme-color);
+            text-shadow: 0 0 20px var(--theme-glow);
+            transition: color 0.5s ease, text-shadow 0.5s ease;
         }
 
         p.subtitle {
@@ -49,7 +51,7 @@
         }
 
         .container {
-            max-width: 450px;
+            max-width: 480px;
             width: 100%;
             display: flex;
             flex-direction: column;
@@ -64,16 +66,16 @@
             font-size: 0.9rem;
             color: var(--text-muted);
             background: var(--card-bg);
-            padding: 10px 15px;
+            padding: 12px 18px;
             border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             box-sizing: border-box;
         }
 
-        /* Flashcard Styling with 3D Flip */
+        /* Flashcard Styling */
         .flashcard-container {
             width: 100%;
-            height: 260px;
+            height: 280px;
             perspective: 1000px;
             cursor: pointer;
         }
@@ -85,7 +87,7 @@
             transform-style: preserve-3d;
             transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
             border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
         }
 
         .flashcard.flipped {
@@ -100,55 +102,57 @@
             border-radius: 20px;
             background: var(--card-bg);
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 2px solid var(--theme-color);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 24px;
             box-sizing: border-box;
             text-align: center;
+            box-shadow: inset 0 0 15px var(--theme-glow);
+            transition: border-color 0.5s ease, box-shadow 0.5s ease;
         }
 
-        .card-front {
-            font-size: 3.5rem;
+        .card-front-number {
+            font-size: 4rem;
             font-weight: 800;
-            color: var(--accent);
-            text-shadow: 0 0 15px var(--accent-glow);
+            color: var(--theme-color);
+            text-shadow: 0 0 20px var(--theme-glow);
+            transition: color 0.5s ease, text-shadow 0.5s ease;
         }
 
         .card-front-label {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: var(--text-muted);
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 2.5px;
             margin-bottom: 5px;
         }
 
         .card-back {
             transform: rotateY(180deg);
-            background: rgba(30, 41, 59, 0.95);
-            border: 1px solid var(--accent);
         }
 
         .card-symbol {
-            font-size: 2.8rem;
+            font-size: 3rem;
             font-weight: 800;
             color: #ffffff;
-            text-shadow: 0 0 10px var(--accent-glow);
+            text-shadow: 0 0 15px var(--theme-glow);
             margin-bottom: 2px;
         }
 
         .card-name {
-            font-size: 1.2rem;
-            color: var(--accent);
-            font-weight: 600;
-            margin-bottom: 8px;
+            font-size: 1.3rem;
+            color: var(--theme-color);
+            font-weight: 700;
+            margin-bottom: 10px;
+            transition: color 0.5s ease;
         }
 
         .card-details {
-            font-size: 0.9rem;
-            line-height: 1.4;
+            font-size: 0.92rem;
+            line-height: 1.45;
             color: #e2e8f0;
         }
 
@@ -167,7 +171,7 @@
             font-weight: 600;
             cursor: pointer;
             border: none;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
         }
 
         button.btn-retry {
@@ -201,42 +205,47 @@
             color: var(--text-main);
             border: 1px solid rgba(255, 255, 255, 0.1);
             font-size: 0.9rem;
-            padding: 8px;
+            padding: 10px;
+            border-radius: 12px;
+            flex: 1;
+            cursor: pointer;
+            transition: background 0.2s;
         }
 
         button.btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .keyboard-hint {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-align: center;
         }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>🧪 Periodic Flashcards 🧪</h1>
+        <h1 id="appTitle">🧪 Periodic Flashcards 🧪</h1>
         <p class="subtitle">Click card to flip • Guess the element from its atomic number</p>
     </header>
 
     <div class="container">
         <div class="stats-bar">
-            <span id="cardProgress">Card: 1 / 15</span>
+            <span id="cardProgress">Card: 1 / 118</span>
             <span id="scoreTracker">Mastered: 0</span>
         </div>
 
         <div class="flashcard-container" id="cardContainer">
             <div class="flashcard" id="flashcard">
-                <!-- Front Side: Only Number -->
                 <div class="card-face card-front">
                     <div class="card-front-label">Atomic Number</div>
-                    <div id="frontNumber">#1</div>
+                    <div class="card-front-number" id="frontNumber">#1</div>
                 </div>
-                <!-- Back Side: Symbol, Name & Details -->
                 <div class="card-face card-back">
                     <div class="card-symbol" id="backSymbol">H</div>
                     <div class="card-name" id="backName">Hydrogen</div>
-                    <div class="card-details" id="backDetails">
-                        <strong>Category:</strong> Reactive Nonmetal<br>
-                        <em>Most abundant chemical substance in the Universe!</em>
-                    </div>
+                    <div class="card-details" id="backDetails"></div>
                 </div>
             </div>
         </div>
@@ -250,26 +259,136 @@
             <button class="btn btn-secondary" id="shuffleBtn">Shuffle Deck</button>
             <button class="btn btn-secondary" id="resetBtn">Reset Progress</button>
         </div>
+
+        <div class="keyboard-hint">
+            ⌨️ Shortcuts: <b>Space</b> (Flip) • <b>←</b> (Study Again) • <b>→</b> (Mastered)
+        </div>
     </div>
 
     <script>
         const elementsData = [
-            { number: 1, symbol: "H", name: "Hydrogen", category: "Reactive Nonmetal", fact: "Most abundant substance in the universe!" },
-            { number: 2, symbol: "He", name: "Helium", category: "Noble Gas", fact: "Lighter than air; makes your voice high-pitched." },
-            { number: 3, symbol: "Li", name: "Lithium", category: "Alkali Metal", fact: "Lightest alkali metal; used in modern batteries." },
-            { number: 6, symbol: "C", name: "Carbon", category: "Reactive Nonmetal", fact: "The basis for all known organic life on Earth." },
-            { number: 7, symbol: "N", name: "Nitrogen", category: "Reactive Nonmetal", fact: "Makes up about 78% of Earth's atmosphere." },
-            { number: 8, symbol: "O", name: "Oxygen", category: "Reactive Nonmetal", fact: "Essential for cellular respiration." },
-            { number: 9, symbol: "F", name: "Fluorine", category: "Halogen", fact: "The most chemically reactive and electronegative element." },
-            { number: 11, symbol: "Na", name: "Sodium", category: "Alkali Metal", fact: "Combines with Chlorine to form table salt." },
-            { number: 13, symbol: "Al", name: "Aluminum", category: "Post-Transition Metal", fact: "The most abundant metal in Earth's crust." },
-            { number: 14, symbol: "Si", name: "Silicon", category: "Metalloid", fact: "Foundational material used in computer microchips." },
-            { number: 15, symbol: "P", name: "Phosphorus", category: "Reactive Nonmetal", fact: "Crucial for DNA, RNA, and ATP energy storage." },
-            { number: 16, symbol: "S", name: "Sulfur", category: "Reactive Nonmetal", fact: "Historically known as 'brimstone'." },
-            { number: 17, symbol: "Cl", name: "Chlorine", category: "Halogen", fact: "Used widely to disinfect swimming pools." },
+            { number: 1, symbol: "H", name: "Hydrogen", category: "Reactive Nonmetal", fact: "Most abundant chemical substance in the Universe." },
+            { number: 2, symbol: "He", name: "Helium", category: "Noble Gas", fact: "Second lightest element; non-reactive noble gas." },
+            { number: 3, symbol: "Li", name: "Lithium", category: "Alkali Metal", fact: "Lightest metal; powers modern rechargeable batteries." },
+            { number: 4, symbol: "Be", name: "Beryllium", category: "Alkaline Earth Metal", fact: "High melting point; transparent to X-rays." },
+            { number: 5, symbol: "B", name: "Boron", category: "Metalloid", fact: "Used in heat-resistant borosilicate glass." },
+            { number: 6, symbol: "C", name: "Carbon", category: "Reactive Nonmetal", fact: "Forms the chemical basis of all known organic life." },
+            { number: 7, symbol: "N", name: "Nitrogen", category: "Reactive Nonmetal", fact: "Makes up 78% of Earth's atmosphere." },
+            { number: 8, symbol: "O", name: "Oxygen", category: "Reactive Nonmetal", fact: "Essential element for human cellular respiration." },
+            { number: 9, symbol: "F", name: "Fluorine", category: "Halogen", fact: "Most chemically reactive halogen element." },
+            { number: 10, symbol: "Ne", name: "Neon", category: "Noble Gas", fact: "Glows reddish-orange in high-voltage electric discharges." },
+            { number: 11, symbol: "Na", name: "Sodium", category: "Alkali Metal", fact: "Reacts violently with water; constituent of table salt." },
+            { number: 12, symbol: "Mg", name: "Magnesium", category: "Alkaline Earth Metal", fact: "Essential mineral contained in chlorophyll." },
+            { number: 13, symbol: "Al", name: "Aluminum", category: "Post-Transition Metal", fact: "Most abundant metal in Earth's crust." },
+            { number: 14, symbol: "Si", name: "Silicon", category: "Metalloid", fact: "Primary component of semiconductor computer microchips." },
+            { number: 15, symbol: "P", name: "Phosphorus", category: "Reactive Nonmetal", fact: "Key structural element of human DNA and ATP." },
+            { number: 16, symbol: "S", name: "Sulfur", category: "Reactive Nonmetal", fact: "Yellow crystalline nonmetal historically called brimstone." },
+            { number: 17, symbol: "Cl", name: "Chlorine", category: "Halogen", fact: "Used worldwide for swimming pool disinfection." },
+            { number: 18, symbol: "Ar", name: "Argon", category: "Noble Gas", fact: "Third most abundant gas in Earth's atmosphere." },
+            { number: 19, symbol: "K", name: "Potassium", category: "Alkali Metal", fact: "Vital electrolyte regulating human heart function." },
+            { number: 20, symbol: "Ca", name: "Calcium", category: "Alkaline Earth Metal", fact: "Primary building material for human bones and teeth." },
+            { number: 21, symbol: "Sc", name: "Scandium", category: "Transition Metal", fact: "Alloyed with aluminum for high-performance sports gear." },
+            { number: 22, symbol: "Ti", name: "Titanium", category: "Transition Metal", fact: "Strong as steel but 45% lighter; highly corrosion resistant." },
+            { number: 23, symbol: "V", name: "Vanadium", category: "Transition Metal", fact: "Added to steel to create durable tools and axles." },
+            { number: 24, symbol: "Cr", name: "Chromium", category: "Transition Metal", fact: "Gives stainless steel its shiny finish and rust resistance." },
+            { number: 25, symbol: "Mn", name: "Manganese", category: "Transition Metal", fact: "Essential in industrial steel production." },
+            { number: 26, symbol: "Fe", name: "Iron", category: "Transition Metal", fact: "Most common element on Earth by mass; forms core." },
+            { number: 27, symbol: "Co", name: "Cobalt", category: "Transition Metal", fact: "Produces vibrant deep blue pigments in glass and ceramic." },
+            { number: 28, symbol: "Ni", name: "Nickel", category: "Transition Metal", fact: "Resists corrosion; used extensively in coinage." },
+            { number: 29, symbol: "Cu", name: "Copper", category: "Transition Metal", fact: "Excellent conductor of electricity and heat." },
+            { number: 30, symbol: "Zn", name: "Zinc", category: "Transition Metal", fact: "Used in galvanization to protect steel from rusting." },
+            { number: 31, symbol: "Ga", name: "Gallium", category: "Post-Transition Metal", fact: "Melts at 29.76°C—can melt in human hands." },
+            { number: 32, symbol: "Ge", name: "Germanium", category: "Metalloid", fact: "Crucial early semiconductor material for transistors." },
+            { number: 33, symbol: "As", name: "Arsenic", category: "Metalloid", fact: "Historically famous toxic metalloid." },
+            { number: 34, symbol: "Se", name: "Selenium", category: "Reactive Nonmetal", fact: "Conducts electricity better when exposed to light." },
+            { number: 35, symbol: "Br", name: "Bromine", category: "Halogen", fact: "Only nonmetallic liquid element at room temperature." },
+            { number: 36, symbol: "Kr", name: "Krypton", category: "Noble Gas", fact: "Used in high-speed photographic flash lamps." },
+            { number: 37, symbol: "Rb", name: "Rubidium", category: "Alkali Metal", fact: "Highly reactive metal; vaporized in atomic clocks." },
+            { number: 38, symbol: "Sr", name: "Strontium", category: "Alkaline Earth Metal", fact: "Gives red color to fireworks and emergency flares." },
+            { number: 39, symbol: "Y", name: "Yttrium", category: "Transition Metal", fact: "Used in camera lenses to increase heat resistance." },
+            { number: 40, symbol: "Zr", name: "Zirconium", category: "Transition Metal", fact: "Resistant to corrosion; used in nuclear reactors." },
+            { number: 41, symbol: "Nb", name: "Niobium", category: "Transition Metal", fact: "Used in superconducting magnets for MRI scanners." },
+            { number: 42, symbol: "Mo", name: "Molybdenum", category: "Transition Metal", fact: "High melting point metal used in ultra-high-strength steel." },
+            { number: 43, symbol: "Tc", name: "Technetium", category: "Transition Metal", fact: "First artificially created chemical element." },
+            { number: 44, symbol: "Ru", name: "Ruthenium", category: "Transition Metal", fact: "Rare transition metal used in wear-resistant electrical contacts." },
+            { number: 45, symbol: "Rh", name: "Rhodium", category: "Transition Metal", fact: "Extremely valuable noble metal used in catalytic converters." },
+            { number: 46, symbol: "Pd", name: "Palladium", category: "Transition Metal", fact: "Absorbs up to 900 times its own volume of hydrogen gas." },
             { number: 47, symbol: "Ag", name: "Silver", category: "Transition Metal", fact: "Highest electrical and thermal conductivity of any metal." },
-            { number: 79, symbol: "Au", name: "Gold", category: "Transition Metal", fact: "Precious metal that never tarnishes or rusts." }
+            { number: 48, symbol: "Cd", name: "Cadmium", category: "Transition Metal", fact: "Soft toxic metal used in historic rechargeable batteries." },
+            { number: 49, symbol: "In", name: "Indium", category: "Post-Transition Metal", fact: "Key ingredient in touchscreens (Indium Tin Oxide)." },
+            { number: 50, symbol: "Sn", name: "Tin", category: "Post-Transition Metal", fact: "Resists corrosion; used to coat other metals." },
+            { number: 51, symbol: "Sb", name: "Antimony", category: "Metalloid", fact: "Used to harden lead alloys in batteries." },
+            { number: 52, symbol: "Te", name: "Tellurium", category: "Metalloid", fact: "Rare metalloid used in solar panels." },
+            { number: 53, symbol: "I", name: "Iodine", category: "Halogen", fact: "Essential thyroid nutrient; deep violet vapor." },
+            { number: 54, symbol: "Xe", name: "Xenon", category: "Noble Gas", fact: "Heavy noble gas used in ion thrusters for spacecraft." },
+            { number: 55, symbol: "Cs", name: "Cesium", category: "Alkali Metal", fact: "Drives international atomic clock standard frequencies." },
+            { number: 56, symbol: "Ba", name: "Barium", category: "Alkaline Earth Metal", fact: "Used in medical X-ray imaging of the digestive tract." },
+            { number: 57, symbol: "La", name: "Lanthanum", category: "Lanthanide", fact: "Gives name to the lanthanide series of elements." },
+            { number: 58, symbol: "Ce", name: "Cerium", category: "Lanthanide", fact: "Most abundant rare-earth metal; used in lighter flints." },
+            { number: 59, symbol: "Pr", name: "Praseodymium", category: "Lanthanide", fact: "Creates yellow-green colors in glass and ceramics." },
+            { number: 60, symbol: "Nd", name: "Neodymium", category: "Lanthanide", fact: "Used to make world's strongest permanent magnets." },
+            { number: 61, symbol: "Pm", name: "Promethium", category: "Lanthanide", fact: "Only radioactive lanthanide element." },
+            { number: 62, symbol: "Sm", name: "Samarium", category: "Lanthanide", fact: "Used in high-temperature permanent magnets." },
+            { number: 63, symbol: "Eu", name: "Europium", category: "Lanthanide", fact: "Used as red phosphor in anti-counterfeiting banknotes." },
+            { number: 64, symbol: "Gd", name: "Gadolinium", category: "Lanthanide", fact: "Intense contrast agent used in MRI medical scans." },
+            { number: 65, symbol: "Tb", name: "Terbium", category: "Lanthanide", fact: "Green phosphor element used in TV screens." },
+            { number: 66, symbol: "Dy", name: "Dysprosium", category: "Lanthanide", fact: "High thermal neutron absorption capabilities." },
+            { number: 67, symbol: "Ho", name: "Holmium", category: "Lanthanide", fact: "Has highest magnetic strength of any element." },
+            { number: 68, symbol: "Er", name: "Erbium", category: "Lanthanide", fact: "Dopes fiber-optic cables to amplify light signals." },
+            { number: 69, symbol: "Tm", name: "Thulium", category: "Lanthanide", fact: "Rarest naturally occurring lanthanide metal." },
+            { number: 70, symbol: "Yb", name: "Ytterbium", category: "Lanthanide", fact: "Used in ultra-precise atomic clocks." },
+            { number: 71, symbol: "Lu", name: "Lutetium", category: "Lanthanide", fact: "Dense, hard rare-earth metal used in PET scans." },
+            { number: 72, symbol: "Hf", name: "Hafnium", category: "Transition Metal", fact: "Absorbs neutrons; used in nuclear control rods." },
+            { number: 73, symbol: "Ta", name: "Tantalum", category: "Transition Metal", fact: "Extremely corrosion-resistant; used in electronics." },
+            { number: 74, symbol: "W", name: "Tungsten", category: "Transition Metal", fact: "Highest melting point of all pure metals (3422°C)." },
+            { number: 75, symbol: "Re", name: "Rhenium", category: "Transition Metal", fact: "Added to nickel alloys for jet engine turbine blades." },
+            { number: 76, symbol: "Os", name: "Osmium", category: "Transition Metal", fact: "Densest naturally occurring chemical element." },
+            { number: 77, symbol: "Ir", name: "Iridium", category: "Transition Metal", fact: "Most corrosion-resistant metal known." },
+            { number: 78, symbol: "Pt", name: "Platinum", category: "Transition Metal", fact: "Precious noble metal used in catalytic converters." },
+            { number: 79, symbol: "Au", name: "Gold", category: "Transition Metal", fact: "Precious yellow metal that never oxidizes or tarnishes." },
+            { number: 80, symbol: "Hg", name: "Mercury", category: "Transition Metal", fact: "Only metallic element liquid at room temperature." },
+            { number: 81, symbol: "Tl", name: "Thallium", category: "Post-Transition Metal", fact: "Highly toxic metal historically used as poison." },
+            { number: 82, symbol: "Pb", name: "Lead", category: "Post-Transition Metal", fact: "Heavy, soft dense metal used for radiation shielding." },
+            { number: 83, symbol: "Bi", name: "Bismuth", category: "Post-Transition Metal", fact: "Forms vibrant iridescent rainbow oxide crystals." },
+            { number: 84, symbol: "Po", name: "Polonium", category: "Metalloid", fact: "Rare radioactive element discovered by Marie Curie." },
+            { number: 85, symbol: "At", name: "Astatine", category: "Halogen", fact: "Rarest naturally occurring element in Earth's crust." },
+            { number: 86, symbol: "Rn", name: "Radon", category: "Noble Gas", fact: "Colorless radioactive gas emitted by decaying radium." },
+            { number: 87, symbol: "Fr", name: "Francium", category: "Alkali Metal", fact: "Extremely unstable, radioactive alkali metal." },
+            { number: 88, symbol: "Ra", name: "Radium", category: "Alkaline Earth Metal", fact: "Famous radioactive element that glows faint blue." },
+            { number: 89, symbol: "Ac", name: "Actinium", category: "Actinide", fact: "Gives name to the actinide radioisotope series." },
+            { number: 90, symbol: "Th", name: "Thorium", category: "Actinide", fact: "Potential cleaner nuclear energy fuel alternative." },
+            { number: 91, symbol: "Pa", name: "Protactinium", category: "Actinide", fact: "Dense, toxic radioisotope element." },
+            { number: 92, symbol: "U", name: "Uranium", category: "Actinide", fact: "Primary fuel source for nuclear power plants." },
+            { number: 93, symbol: "Np", name: "Neptunium", category: "Actinide", fact: "First synthetic transuranium element created." },
+            { number: 94, symbol: "Pu", name: "Plutonium", category: "Actinide", fact: "Fissile element used in space probe thermoelectric generators." },
+            { number: 95, symbol: "Am", name: "Americium", category: "Actinide", fact: "Synthetic element present inside ionizing household smoke detectors." },
+            { number: 96, symbol: "Cm", name: "Curium", category: "Actinide", fact: "Named after radioactivity pioneers Marie and Pierre Curie." },
+            { number: 97, symbol: "Bk", name: "Berkelium", category: "Actinide", fact: "Synthetic element named after UC Berkeley campus." },
+            { number: 98, symbol: "Cf", name: "Californium", category: "Actinide", fact: "Strong neutron emitter used to start nuclear reactors." },
+            { number: 99, symbol: "Es", name: "Einsteinium", category: "Actinide", fact: "Discovered in debris of first hydrogen bomb explosion." },
+            { number: 100, symbol: "Fm", name: "Fermium", category: "Actinide", fact: "Heavy synthetic radioisotope named after Enrico Fermi." },
+            { number: 101, symbol: "Md", name: "Mendelevium", category: "Actinide", fact: "Named after Dmitri Mendeleev, creator of the periodic table." },
+            { number: 102, symbol: "No", name: "Nobelium", category: "Actinide", fact: "Synthetic radioactive element named after Alfred Nobel." },
+            { number: 103, symbol: "Lr", name: "Lawrencium", category: "Actinide", fact: "Synthetic element named after cyclotron inventor Ernest Lawrence." },
+            { number: 104, symbol: "Rf", name: "Rutherfordium", category: "Transition Metal", fact: "Superheavy element named after Ernest Rutherford." },
+            { number: 105, symbol: "Db", name: "Dubnium", category: "Transition Metal", fact: "Synthetic element named after Dubna, Russia nuclear center." },
+            { number: 106, symbol: "Sg", name: "Seaborgium", category: "Transition Metal", fact: "Named after Nobel laureate chemist Glenn Seaborg." },
+            { number: 107, symbol: "Bh", name: "Bohrium", category: "Transition Metal", fact: "Named in honor of quantum physicist Niels Bohr." },
+            { number: 108, symbol: "Hs", name: "Hassium", category: "Transition Metal", fact: "Synthetic superheavy element named after Hesse, Germany." },
+            { number: 109, symbol: "Mt", name: "Meitnerium", category: "Unknown", fact: "Named after nuclear fission pioneer Lise Meitner." },
+            { number: 110, symbol: "Ds", name: "Darmstadtium", category: "Unknown", fact: "Created at GSI Helmholtz Centre in Darmstadt." },
+            { number: 111, symbol: "Rg", name: "Roentgenium", category: "Unknown", fact: "Named after X-ray discoverer Wilhelm Röntgen." },
+            { number: 112, symbol: "Cn", name: "Copernicium", category: "Transition Metal", fact: "Named after astronomer Nicolaus Copernicus." },
+            { number: 113, symbol: "Nh", name: "Nihonium", category: "Post-Transition Metal", fact: "First element synthesized in an Asian nation (Japan)." },
+            { number: 114, symbol: "Fl", name: "Flerovium", category: "Post-Transition Metal", fact: "Superheavy element synthesized in 1998." },
+            { number: 115, symbol: "Mc", name: "Moscovium", category: "Post-Transition Metal", fact: "Synthesized by joint Russian and American research team." },
+            { number: 116, symbol: "Lv", name: "Livermorium", category: "Post-Transition Metal", fact: "Named after Lawrence Livermore National Laboratory." },
+            { number: 117, symbol: "Ts", name: "Tennessine", category: "Halogen", fact: "Second newest element added to the periodic table." },
+            { number: 118, symbol: "Og", name: "Oganesson", category: "Noble Gas", fact: "Heaviest element on the periodic table; atomic number 118." }
         ];
+
+        // Color palettes (Hue values)
+        const colorHues = [195, 260, 320, 140, 35, 175, 290, 15, 210, 48];
 
         let currentIndex = 0;
         let masteredCount = 0;
@@ -284,10 +403,16 @@
         const cardProgress = document.getElementById('cardProgress');
         const scoreTracker = document.getElementById('scoreTracker');
 
-        function updateCard() {
-            isFlipped = false;
-            flashcard.classList.remove('flipped');
+        function generateRandomTheme() {
+            const randomHue = colorHues[Math.floor(Math.random() * colorHues.length)];
+            const themeColor = `hsl(${randomHue}, 90%, 60%)`;
+            const themeGlow = `hsla(${randomHue}, 90%, 60%, 0.4)`;
             
+            document.documentElement.style.setProperty('--theme-color', themeColor);
+            document.documentElement.style.setProperty('--theme-glow', themeGlow);
+        }
+
+        function updateCard() {
             const el = elementsData[currentIndex];
             frontNumber.innerText = `#${el.number}`;
             backSymbol.innerText = el.symbol;
@@ -298,14 +423,34 @@
             scoreTracker.innerText = `Mastered: ${masteredCount}`;
         }
 
-        cardContainer.addEventListener('click', () => {
+        function flipCard() {
             isFlipped = !isFlipped;
+            generateRandomTheme();
             flashcard.classList.toggle('flipped', isFlipped);
-        });
+        }
+
+        function nextCard() {
+            generateRandomTheme();
+            if (isFlipped) {
+                isFlipped = false;
+                flashcard.classList.remove('flipped');
+                setTimeout(() => {
+                    currentIndex = (currentIndex + 1) % elementsData.length;
+                    updateCard();
+                }, 250);
+            } else {
+                currentIndex = (currentIndex + 1) % elementsData.length;
+                updateCard();
+            }
+        }
+
+        cardContainer.addEventListener('click', flipCard);
 
         document.getElementById('gotItBtn').addEventListener('click', (e) => {
             e.stopPropagation();
-            masteredCount++;
+            if (masteredCount < elementsData.length) {
+                masteredCount++;
+            }
             nextCard();
         });
 
@@ -314,23 +459,35 @@
             nextCard();
         });
 
-        function nextCard() {
-            currentIndex = (currentIndex + 1) % elementsData.length;
-            updateCard();
-        }
-
         document.getElementById('shuffleBtn').addEventListener('click', () => {
             elementsData.sort(() => Math.random() - 0.5);
             currentIndex = 0;
+            generateRandomTheme();
+            if (isFlipped) flipCard();
             updateCard();
         });
 
         document.getElementById('resetBtn').addEventListener('click', () => {
             masteredCount = 0;
             currentIndex = 0;
+            generateRandomTheme();
+            if (isFlipped) flipCard();
             updateCard();
         });
 
+        // Keyboard navigation setup
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' || e.code === 'Enter') {
+                e.preventDefault();
+                flipCard();
+            } else if (e.code === 'ArrowRight') {
+                document.getElementById('gotItBtn').click();
+            } else if (e.code === 'ArrowLeft') {
+                document.getElementById('retryBtn').click();
+            }
+        });
+
+        generateRandomTheme();
         updateCard();
     </script>
 </body>
