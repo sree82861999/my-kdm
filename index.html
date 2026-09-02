@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Periodic Table Flashcards</title>
+    <title>Random Periodic Table Flashcards</title>
     <style>
         :root {
             --bg-dark: #070a12;
@@ -232,7 +232,7 @@
 
     <div class="container">
         <div class="stats-bar">
-            <span id="cardProgress">Card: 1 / 118</span>
+            <span id="cardProgress">Card Seen: 1 / 118</span>
             <span id="scoreTracker">Mastered: 0</span>
         </div>
 
@@ -256,7 +256,7 @@
         </div>
 
         <div class="secondary-controls">
-            <button class="btn btn-secondary" id="shuffleBtn">Shuffle Deck</button>
+            <button class="btn btn-secondary" id="shuffleBtn">Pick Random Card</button>
             <button class="btn btn-secondary" id="resetBtn">Reset Progress</button>
         </div>
 
@@ -392,6 +392,7 @@
 
         let currentIndex = 0;
         let masteredCount = 0;
+        let cardsSeen = 0;
         let isFlipped = false;
 
         const flashcard = document.getElementById('flashcard');
@@ -412,6 +413,15 @@
             document.documentElement.style.setProperty('--theme-glow', themeGlow);
         }
 
+        function pickRandomIndex() {
+            let nextIndex;
+            // Ensure the next random card isn't the exact same card as current
+            do {
+                nextIndex = Math.floor(Math.random() * elementsData.length);
+            } while (nextIndex === currentIndex && elementsData.length > 1);
+            return nextIndex;
+        }
+
         function updateCard() {
             const el = elementsData[currentIndex];
             frontNumber.innerText = `#${el.number}`;
@@ -419,7 +429,7 @@
             backName.innerText = el.name;
             backDetails.innerHTML = `<strong>Category:</strong> ${el.category}<br><em>"${el.fact}"</em>`;
             
-            cardProgress.innerText = `Card: ${currentIndex + 1} / ${elementsData.length}`;
+            cardProgress.innerText = `Card Seen: ${cardsSeen} / ${elementsData.length}`;
             scoreTracker.innerText = `Mastered: ${masteredCount}`;
         }
 
@@ -430,16 +440,19 @@
         }
 
         function nextCard() {
+            cardsSeen++;
             generateRandomTheme();
+            const newIndex = pickRandomIndex();
+
             if (isFlipped) {
                 isFlipped = false;
                 flashcard.classList.remove('flipped');
                 setTimeout(() => {
-                    currentIndex = (currentIndex + 1) % elementsData.length;
+                    currentIndex = newIndex;
                     updateCard();
                 }, 250);
             } else {
-                currentIndex = (currentIndex + 1) % elementsData.length;
+                currentIndex = newIndex;
                 updateCard();
             }
         }
@@ -460,16 +473,13 @@
         });
 
         document.getElementById('shuffleBtn').addEventListener('click', () => {
-            elementsData.sort(() => Math.random() - 0.5);
-            currentIndex = 0;
-            generateRandomTheme();
-            if (isFlipped) flipCard();
-            updateCard();
+            nextCard();
         });
 
         document.getElementById('resetBtn').addEventListener('click', () => {
             masteredCount = 0;
-            currentIndex = 0;
+            cardsSeen = 1;
+            currentIndex = pickRandomIndex();
             generateRandomTheme();
             if (isFlipped) flipCard();
             updateCard();
@@ -487,6 +497,9 @@
             }
         });
 
+        // Initial setup
+        cardsSeen = 1;
+        currentIndex = pickRandomIndex();
         generateRandomTheme();
         updateCard();
     </script>
