@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Periodic Table Flashcard Tester</title>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.85);
+            --accent: #38bdf8;
+            --accent-glow: rgba(56, 189, 248, 0.4);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #34d399;
+            --danger: #f87171;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #090d16 0%, #1e1b4b 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-main);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            margin: 0 0 5px 0;
+            font-size: 2rem;
+            background: linear-gradient(to right, #38bdf8, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.subtitle {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .container {
+            max-width: 450px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            background: var(--card-bg);
+            padding: 10px 15px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-sizing: border-box;
+        }
+
+        /* Flashcard Styling with 3D Flip */
+        .flashcard-container {
+            width: 100%;
+            height: 260px;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        .card-front {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: var(--accent);
+            text-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .card-front-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+            background: rgba(30, 41, 59, 0.95);
+            border: 1px solid var(--accent);
+        }
+
+        .card-symbol {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: #ffffff;
+            text-shadow: 0 0 10px var(--accent-glow);
+            margin-bottom: 2px;
+        }
+
+        .card-name {
+            font-size: 1.2rem;
+            color: var(--accent);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .card-details {
+            font-size: 0.9rem;
+            line-height: 1.4;
+            color: #e2e8f0;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+        }
+
+        button.btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        button.btn-retry {
+            background: rgba(248, 113, 113, 0.15);
+            color: var(--danger);
+            border: 1px solid rgba(248, 113, 113, 0.3);
+        }
+
+        button.btn-retry:hover {
+            background: rgba(248, 113, 113, 0.25);
+        }
+
+        button.btn-gotit {
+            background: rgba(52, 211, 153, 0.15);
+            color: var(--success);
+            border: 1px solid rgba(52, 211, 153, 0.3);
+        }
+
+        button.btn-gotit:hover {
+            background: rgba(52, 211, 153, 0.25);
+        }
+
+        .secondary-controls {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+
+        button.btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+            padding: 8px;
+        }
+
+        button.btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🧪 Periodic Flashcards 🧪</h1>
+        <p class="subtitle">Click card to flip • Guess the element from its atomic number</p>
+    </header>
+
+    <div class="container">
+        <div class="stats-bar">
+            <span id="cardProgress">Card: 1 / 15</span>
+            <span id="scoreTracker">Mastered: 0</span>
+        </div>
+
+        <div class="flashcard-container" id="cardContainer">
+            <div class="flashcard" id="flashcard">
+                <!-- Front Side: Only Number -->
+                <div class="card-face card-front">
+                    <div class="card-front-label">Atomic Number</div>
+                    <div id="frontNumber">#1</div>
+                </div>
+                <!-- Back Side: Symbol, Name & Details -->
+                <div class="card-face card-back">
+                    <div class="card-symbol" id="backSymbol">H</div>
+                    <div class="card-name" id="backName">Hydrogen</div>
+                    <div class="card-details" id="backDetails">
+                        <strong>Category:</strong> Reactive Nonmetal<br>
+                        <em>Most abundant chemical substance in the Universe!</em>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn btn-retry" id="retryBtn">🔄 Study Again</button>
+            <button class="btn btn-gotit" id="gotItBtn">✨ Mastered</button>
+        </div>
+
+        <div class="secondary-controls">
+            <button class="btn btn-secondary" id="shuffleBtn">Shuffle Deck</button>
+            <button class="btn btn-secondary" id="resetBtn">Reset Progress</button>
+        </div>
+    </div>
+
+    <script>
+        const elementsData = [
+            { number: 1, symbol: "H", name: "Hydrogen", category: "Reactive Nonmetal", fact: "Most abundant substance in the universe!" },
+            { number: 2, symbol: "He", name: "Helium", category: "Noble Gas", fact: "Lighter than air; makes your voice high-pitched." },
+            { number: 3, symbol: "Li", name: "Lithium", category: "Alkali Metal", fact: "Lightest alkali metal; used in modern batteries." },
+            { number: 6, symbol: "C", name: "Carbon", category: "Reactive Nonmetal", fact: "The basis for all known organic life on Earth." },
+            { number: 7, symbol: "N", name: "Nitrogen", category: "Reactive Nonmetal", fact: "Makes up about 78% of Earth's atmosphere." },
+            { number: 8, symbol: "O", name: "Oxygen", category: "Reactive Nonmetal", fact: "Essential for cellular respiration." },
+            { number: 9, symbol: "F", name: "Fluorine", category: "Halogen", fact: "The most chemically reactive and electronegative element." },
+            { number: 11, symbol: "Na", name: "Sodium", category: "Alkali Metal", fact: "Combines with Chlorine to form table salt." },
+            { number: 13, symbol: "Al", name: "Aluminum", category: "Post-Transition Metal", fact: "The most abundant metal in Earth's crust." },
+            { number: 14, symbol: "Si", name: "Silicon", category: "Metalloid", fact: "Foundational material used in computer microchips." },
+            { number: 15, symbol: "P", name: "Phosphorus", category: "Reactive Nonmetal", fact: "Crucial for DNA, RNA, and ATP energy storage." },
+            { number: 16, symbol: "S", name: "Sulfur", category: "Reactive Nonmetal", fact: "Historically known as 'brimstone'." },
+            { number: 17, symbol: "Cl", name: "Chlorine", category: "Halogen", fact: "Used widely to disinfect swimming pools." },
+            { number: 47, symbol: "Ag", name: "Silver", category: "Transition Metal", fact: "Highest electrical and thermal conductivity of any metal." },
+            { number: 79, symbol: "Au", name: "Gold", category: "Transition Metal", fact: "Precious metal that never tarnishes or rusts." }
+        ];
+
+        let currentIndex = 0;
+        let masteredCount = 0;
+        let isFlipped = false;
+
+        const flashcard = document.getElementById('flashcard');
+        const cardContainer = document.getElementById('cardContainer');
+        const frontNumber = document.getElementById('frontNumber');
+        const backSymbol = document.getElementById('backSymbol');
+        const backName = document.getElementById('backName');
+        const backDetails = document.getElementById('backDetails');
+        const cardProgress = document.getElementById('cardProgress');
+        const scoreTracker = document.getElementById('scoreTracker');
+
+        function updateCard() {
+            isFlipped = false;
+            flashcard.classList.remove('flipped');
+            
+            const el = elementsData[currentIndex];
+            frontNumber.innerText = `#${el.number}`;
+            backSymbol.innerText = el.symbol;
+            backName.innerText = el.name;
+            backDetails.innerHTML = `<strong>Category:</strong> ${el.category}<br><em>"${el.fact}"</em>`;
+            
+            cardProgress.innerText = `Card: ${currentIndex + 1} / ${elementsData.length}`;
+            scoreTracker.innerText = `Mastered: ${masteredCount}`;
+        }
+
+        cardContainer.addEventListener('click', () => {
+            isFlipped = !isFlipped;
+            flashcard.classList.toggle('flipped', isFlipped);
+        });
+
+        document.getElementById('gotItBtn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            masteredCount++;
+            nextCard();
+        });
+
+        document.getElementById('retryBtn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            nextCard();
+        });
+
+        function nextCard() {
+            currentIndex = (currentIndex + 1) % elementsData.length;
+            updateCard();
+        }
+
+        document.getElementById('shuffleBtn').addEventListener('click', () => {
+            elementsData.sort(() => Math.random() - 0.5);
+            currentIndex = 0;
+            updateCard();
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            masteredCount = 0;
+            currentIndex = 0;
+            updateCard();
+        });
+
+        updateCard();
+    </script>
+</body>
+</html>
