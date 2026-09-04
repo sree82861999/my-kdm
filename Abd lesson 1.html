@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="te">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hindi Quiz: Baraste Badal</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e3f2fd; /* Light Blue Theme for Rain/Clouds */
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            border-top: 5px solid #0288d1;
+        }
+        h1 {
+            text-align: center;
+            color: #01579b;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #0277bd;
+            font-size: 1.1em;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+        .score-board {
+            display: flex;
+            justify-content: space-between;
+            background: #b3e5fc;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            color: #01579b;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            height: 8px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background-color: #03a9f4;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .question-card {
+            background-color: #fff;
+            animation: fadeIn 0.5s;
+            border: 1px solid #e1f5fe;
+            padding: 20px;
+            border-radius: 12px;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .question-text {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        @media (max-width: 600px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .option-btn {
+            padding: 15px;
+            border: 2px solid #b3e5fc;
+            border-radius: 10px;
+            background: #fff;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+            font-size: 1.05em;
+            color: #444;
+        }
+        .option-btn:hover {
+            background-color: #e1f5fe;
+            border-color: #4fc3f7;
+        }
+        
+        .explanation {
+            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #fff9c4; /* Yellowish for note */
+            border-radius: 8px;
+            border-left: 5px solid #fbc02d;
+        }
+        .explanation h4 {
+            margin: 0 0 8px 0;
+            color: #f57f17;
+        }
+        .explanation p {
+            margin: 0;
+            color: #555;
+            line-height: 1.5;
+        }
+
+        /* Next Button */
+        .next-btn {
+            display: none;
+            width: 100%;
+            padding: 15px;
+            margin-top: 20px;
+            background-color: #0288d1;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .next-btn:hover {
+            background-color: #01579b;
+        }
+        
+        /* Result Screen */
+        .result-screen {
+            display: none;
+            text-align: center;
+            padding: 30px;
+        }
+        .result-title {
+            font-size: 2.2em;
+            color: #0277bd;
+            margin-bottom: 15px;
+        }
+        .result-score {
+            font-size: 3.5em;
+            color: #01579b;
+            margin: 20px 0;
+            font-weight: 800;
+        }
+        .result-msg {
+            font-size: 1.3em;
+            color: #555;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        .restart-btn {
+            padding: 12px 30px;
+            font-size: 1.1em;
+            background-color: #00bcd4;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+        }
+
+        /* States */
+        .correct {
+            background-color: #c8e6c9 !important;
+            border-color: #4caf50 !important;
+            color: #1b5e20 !important;
+            font-weight: bold;
+        }
+        .wrong {
+            background-color: #ffcdd2 !important;
+            border-color: #e57373 !important;
+            color: #b71c1c !important;
+        }
+        .disabled {
+            pointer-events: none;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Hindi Quiz: Baraste Badal</h1>
+    <div class="subtitle">Topic: Poem & Grammar (बरसते बादल)</div>
+    
+    <div id="quiz-ui">
+        <div class="score-board">
+            <span>Score: <span id="score">0</span></span>
+            <span>Question: <span id="current-q">1</span> / 20</span>
+        </div>
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        <div id="quiz-container">
+            </div>
+    </div>
+
+    <div id="result-screen" class="result-screen">
+        <div class="result-title">परिणाम (Result)</div>
+        <div class="result-score" id="final-score">0 / 20</div>
+        <div class="result-msg" id="congrats-msg"></div>
+        <button class="restart-btn" onclick="location.reload()">Play Again ↺</button>
+    </div>
+</div>
+
+<script>
+    // Audio Setup
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playSound(type) {
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        const now = audioCtx.currentTime;
+
+        if (type === 'correct') {
+            // Water drop / Bell sound
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(600, now);
+            osc.frequency.exponentialRampToValueAtTime(1200, now + 0.1);
+            gainNode.gain.setValueAtTime(0.2, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+            osc.start(now);
+            osc.stop(now + 0.5);
+        } else if (type === 'wrong') {
+            // Low thud
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(150, now);
+            osc.frequency.linearRampToValueAtTime(100, now + 0.2);
+            gainNode.gain.setValueAtTime(0.1, now);
+            gainNode.gain.linearRampToValueAtTime(0.01, now + 0.2);
+            osc.start(now);
+            osc.stop(now + 0.2);
+        } else if (type === 'fanfare') {
+            // Victory Arpeggio
+            [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((freq, i) => {
+                const o = audioCtx.createOscillator();
+                const g = audioCtx.createGain();
+                o.connect(g);
+                g.connect(audioCtx.destination);
+                o.type = 'triangle';
+                o.frequency.value = freq;
+                const st = now + (i * 0.1);
+                g.gain.setValueAtTime(0.1, st);
+                g.gain.exponentialRampToValueAtTime(0.01, st + 0.4);
+                o.start(st);
+                o.stop(st + 0.4);
+            });
+        }
+    }
+
+    const questions = [
+        // Image 1001473134.jpg
+        {
+            q: "1. झम-झम-झम-झम <u>मेघ</u> बरसते हैं सावन के। रेखांकित शब्द के पर्यायवाची हैं-",
+            options: ["A) आकाश, गगन", "B) पादप, तरु", "C) चमक, अंबर", "D) बादल, घन"],
+            a: 3, // D
+            t: "సరైన సమాధానం: D (బాదల్, ఘన్).<br>'మేఘ్' (Meg) అంటే మేఘం. దీని పర్యాయపదాలు 'బాదల్' మరియు 'ఘన్'."
+        },
+        {
+            q: "2. वर्षा की बूँदें <u>धरती</u> पर गिरती हैं। रेखांकित शब्द के पर्यायवाची हैं-",
+            options: ["A) पृथ्वी, वसुधा", "B) आनन, संसार", "C) व्योम, नभ", "D) गिरि, मेरू"],
+            a: 0, // A
+            t: "సరైన సమాధానం: A (పృథ్వీ, వసుధ).<br>'ధరతీ' (భూమి) కి పర్యాయపదాలు 'పృథ్వీ' మరియు 'వసుధ'."
+        },
+        
+        // Image 1001473133.jpg
+        {
+            q: "3. <u>बिजली</u> चमकती है। रेखांकित शब्द है-",
+            options: ["A) सर्वनाम", "B) क्रिया", "C) विशेषण", "D) संज्ञा"],
+            a: 3, // D
+            t: "సరైన సమాధానం: D (సంజ్ఞ).<br>'బిజలీ' (మెరుపు) అనేది ఒక పేరు (Name), కాబట్టి ఇది సంజ్ఞ (Noun)."
+        },
+        {
+            q: "4. <u>सोन बलाक</u> क्रंदन करते हैं। वाक्य में रेखांकित शब्द हैं-",
+            options: ["A) सर्वनाम", "B) क्रिया", "C) विशेषण", "D) संज्ञा"],
+            a: 3, // D
+            t: "సరైన సమాధానం: D (సంజ్ఞ).<br>'సోన్ బలాక్' (పక్షులు) అనేది ఒక పక్షి జాతి పేరు, కాబట్టి ఇది సంజ్ఞ (Noun)."
+        },
+        {
+            q: "5. कल <u>रात-दिन</u> वर्षा हुई। ‘रात-दिन’ शब्द में कौन-सा समास है?",
+            options: ["A) द्विगु समास", "B) द्वंद्व समास", "C) अव्ययी भाव समास", "D) बहुव्रीहि समास"],
+            a: 1, // B
+            t: "సరైన సమాధానం: B (ద్వంద్వ).<br>'రాత్-దిన్' (రాత్రి-పగలు) రెండు వ్యతిరేక పదాల జంట, కాబట్టి ఇది ద్వంద్వ సమాసం."
+        },
+        {
+            q: "6. मगरमच्छ पानी में रहता है। ‘पानी में रहने वाला’ का शब्द संक्षेप पहचानिए-",
+            options: ["A) थलचर", "B) नभचर", "C) जलचर", "D) ग्रहचर"],
+            a: 2, // C
+            t: "సరైన సమాధానం: C (జలచర్).<br>నీటిలో నివసించే జీవిని 'జలచర్' (Aquatic) అంటారు."
+        },
+        {
+            q: "7. मुझे कविता पाठ में कोई रस नहीं आ रहा था। ‘जिसमें रस न हो’ का शब्द संक्षेप पहचानिए।",
+            options: ["A) नीरस", "B) सरस", "C) अरस", "D) निररस"],
+            a: 0, // A
+            t: "సరైన సమాధానం: A (నీరస్).<br>రసం (Interest/Juice) లేని దానిని 'నీరస్' (Boring/Dry) అంటారు."
+        },
+        {
+            q: "8. हम प्रतिदिन <u>विद्यालय</u> जाते हैं। रेखांकित शब्द का समास पहचानिए।",
+            options: ["A) तत्पुरुष समास", "B) कर्मधारय समास", "C) अव्ययी भाव समास", "D) द्वंद्व समास"],
+            a: 0, // A
+            t: "సరైన సమాధానం: A (తత్పురుష).<br>'విద్యాలయ్' (విద్యా కా ఆలయ్) - విద్య యొక్క ఆలయం. ఇది తత్పురుష సమాసం."
+        },
+        {
+            q: "9. <u>रसोईघर</u> में भोजन बनता है। रेखांकित शब्द का सही विग्रह है-",
+            options: ["A) रसोई में घर", "B) रसोई का घर", "C) रसोई को घर", "D) रसोई के लिए घर"],
+            a: 3, // D
+            t: "సరైన సమాధానం: D (రసోయీ కే లియే ఘర్).<br>'రసోయీఘర్' అంటే వంట కోసం కేటాయించిన గది."
+        },
+        {
+            q: "10. जब रात होती है तो अंधेरा ............ है।",
+            options: ["A) छा जाता", "B) छा जाती", "C) छा जाते", "D) छा जाएँगे"],
+            a: 0, // A
+            t: "సరైన సమాధానం: A (ఛా జాతా).<br>'అంధేరా' (చీకటి) పుంలింగ ఏకవచనం, కాబట్టి క్రియ 'ఛా జాతా హై' అని ఉండాలి."
+        },
+        {
+            q: "11. हमारे विद्यालय में <u>प्रतिवर्ष</u> शिक्षक दिवस मनाया जाता है। रेखांकित शब्द में प्रयुक्त समास है-",
+            options: ["A) द्विगु", "B) अव्ययीभाव", "C) द्वंद्व", "D) बहुव्रीहि"],
+            a: 1, // B
+            t: "సరైన సమాధానం: B (అవ్యయీభావ).<br>'ప్రతి' అనేది అవ్యయం (Prefix), కాబట్టి 'ప్రతివర్ష్' అవ్యయీభావ సమాసం."
+        },
+        {
+            q: "12. आकाश में <u>इंद्रधनुष</u> दिखाई दे रहा है। रेखांकित शब्द का सही विग्रह है-",
+            options: ["A) इंद्र से धनुष", "B) इंद्र के लिए धनुष", "C) इंद्र का धनुष", "D) इंद्र में धनुष"],
+            a: 2, // C
+            t: "సరైన సమాధానం: C (ఇంద్ర కా ధనుష్).<br>'ఇంద్రధనుష్' అంటే ఇంద్రుని యొక్క ధనుస్సు."
+        },
+        {
+            q: "13. आकाश में बिजली ............ है। रिक्त स्थान की पूर्ति के लिए सही विकल्प है-",
+            options: ["A) चमकाती", "B) चमके", "C) चमकते", "D) चमकती"],
+            a: 3, // D
+            t: "సరైన సమాధానం: D (చమక్తీ).<br>'బిజలీ' స్త్రీలింగ పదం, కాబట్టి క్రియ 'చమక్తీ హై' అని ఉండాలి."
+        },
+        {
+            q: "14. मिट्टी के कण-कण से अंकुर फूटते हैं। वाक्य में इस शब्द की पुनरावृत्ति हुई है-",
+            options: ["A) मिट्टी", "B) कण", "C) अंकुर", "D) फूटते"],
+            a: 1, // B
+            t: "సరైన సమాధానం: B (కణ్).<br>'కణ్' అనే పదం రెండు సార్లు (కణ్-కణ్) వచ్చింది."
+        },
+        
+        // Image 1001473132.jpg
+        {
+            q: "15. चम-चम बिजली चमक रही रे उर में घन के। ‘उर’ का समानार्थी है-",
+            options: ["A) हृदय", "B) कर", "C) कर्ण", "D) नासिका"],
+            a: 0, // A
+            t: "సరైన సమాధానం: A (హృదయ్).<br>'ఉర్' (Ur) అంటే హృదయం (Heart)."
+        },
+        {
+            q: "16. सुमित्रानंदन पंत प्रकृति के <u>बेजोड़ कवि</u> है। रेखांकित शब्द के लिए अनेक शब्द हैं-",
+            options: ["A) जो कहानी लिखता हो", "B) जो नाटक लिखता हो", "C) जो निबंध लिखता हो", "D) जो कविता लिखता हो"],
+            a: 3, // D
+            t: "సరైన సమాధానం: D (జో కవితా లిఖ్తా హో).<br>'కవి' అంటే కవితలు రాసేవాడు."
+        },
+        {
+            q: "17. झम-झम मेघ बरसते हैं <u>सावन</u> के। रेखांकित शब्द का सही तत्सम रूप है-",
+            options: ["A) श्रावण", "B) श्रवण", "C) श्रावन", "D) श्रवन"],
+            a: 0, // A
+            t: "సరైన సమాధానం: A (శ్రావణ్).<br>'సావన్' అనే పదానికి సంస్కృత (తత్సమ) రూపం 'శ్రావణ్'."
+        },
+        {
+            q: "18. रज के कण-कण में ........... भरा। सही वर्तनीयुक्त शब्द है-",
+            options: ["A) पुलकावली", "B) पूलकवलि", "C) पूलकावली", "D) पुलकावलि"],
+            a: 0, // A (Commonly accepted in textbook context)
+            t: "సరైన సమాధానం: A (పులకావలీ).<br>పాఠ్యపుస్తకం ప్రకారం సరైన స్పెల్లింగ్ 'పులకావలీ' (Pulakavali)."
+        },
+        {
+            q: "19. वर्षा होने पर वृक्ष <u>हरे-भरे</u> हो जाते हैं। रेखांकित शब्द में प्रयुक्त समास है-",
+            options: ["A) अव्ययी भाव", "B) तत्पुरुष", "C) द्विगु", "D) द्वंद्व"],
+            a: 3, // D
+            t: "సరైన సమాధానం: D (ద్వంద్వ).<br>'హరే-భరే' అనేది జంట పదం, కాబట్టి ఇది ద్వంద్వ సమాసం."
+        },
+        {
+            q: "20. निम्न में से द्विगु समास का उदाहरण है-",
+            options: ["A) वनवास", "B) पंचतंत्र", "C) पंकज", "D) चंद्रमुख"],
+            a: 1, // B
+            t: "సరైన సమాధానం: B (పంచతంత్ర).<br>'పంచతంత్ర' లో మొదటి పదం 'పంచ' (ఐదు - Number), కాబట్టి ఇది ద్విగు సమాసం."
+        }
+    ];
+
+    let currentScore = 0;
+    let currentQIndex = 0;
+    const container = document.getElementById('quiz-container');
+    const scoreDisplay = document.getElementById('score');
+    const qCountDisplay = document.getElementById('current-q');
+    const progressBar = document.getElementById('progress-bar');
+    const resultScreen = document.getElementById('result-screen');
+    const quizUi = document.getElementById('quiz-ui');
+
+    function loadQuestion(index) {
+        if (index >= questions.length) {
+            showResult();
+            return;
+        }
+
+        const q = questions[index];
+        container.innerHTML = '';
+
+        const card = document.createElement('div');
+        card.className = 'question-card';
+        
+        const qText = document.createElement('div');
+        qText.className = 'question-text';
+        qText.innerHTML = q.q;
+        card.appendChild(qText);
+
+        const optionsDiv = document.createElement('div');
+        optionsDiv.className = 'options-grid';
+
+        const explanationDiv = document.createElement('div');
+        explanationDiv.className = 'explanation';
+        explanationDiv.innerHTML = `<h4>వివరణ (Explanation):</h4><p>${q.t}</p>`;
+        
+        const nextBtn = document.createElement('button');
+        nextBtn.className = 'next-btn';
+        nextBtn.textContent = index === questions.length - 1 ? "Check Result 🏆" : "Next Question ➡";
+        nextBtn.onclick = () => {
+            currentQIndex++;
+            loadQuestion(currentQIndex);
+        };
+
+        q.options.forEach((opt, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.textContent = opt;
+            btn.onclick = () => {
+                const allBtns = optionsDiv.querySelectorAll('.option-btn');
+                allBtns.forEach(b => b.classList.add('disabled'));
+                
+                if (i === q.a) {
+                    btn.classList.add('correct');
+                    currentScore++;
+                    scoreDisplay.textContent = currentScore;
+                    playSound('correct');
+                } else {
+                    btn.classList.add('wrong');
+                    allBtns[q.a].classList.add('correct');
+                    playSound('wrong');
+                }
+                
+                explanationDiv.style.display = 'block';
+                nextBtn.style.display = 'block';
+            };
+            optionsDiv.appendChild(btn);
+        });
+
+        card.appendChild(optionsDiv);
+        card.appendChild(explanationDiv);
+        card.appendChild(nextBtn);
+        container.appendChild(card);
+
+        qCountDisplay.textContent = index + 1;
+        const progress = ((index) / questions.length) * 100;
+        progressBar.style.width = `${progress}%`;
+    }
+
+    function showResult() {
+        quizUi.style.display = 'none';
+        resultScreen.style.display = 'block';
+        
+        document.getElementById('final-score').textContent = `${currentScore} / ${questions.length}`;
+        
+        const percentage = (currentScore / questions.length) * 100;
+        let msg = "";
+        
+        if (percentage >= 90) {
+            msg = "अद्भुत! (Wonderful!) 🌧️<br>आपने 'बरसते बादल' पाठ को बहुत अच्छे से समझा है!";
+            playSound('fanfare');
+        } else if (percentage >= 70) {
+            msg = "बहुत अच्छा! (Very Good!) 🎉<br>आपकी हिंदी व्याकरण अच्छी है।";
+            playSound('correct');
+        } else if (percentage >= 50) {
+            msg = "अच्छा प्रयास! (Good Effort) 👍<br>थोड़ा और अभ्यास करें।";
+        } else {
+            msg = "कोई बात नहीं! (Keep Learning)<br>पाठ को दोबारा पढ़ें और प्रयास करें।";
+        }
+        
+        const msgDiv = document.getElementById('congrats-msg');
+        msgDiv.innerHTML = msg;
+    }
+
+    loadQuestion(0);
+</script>
+
+</body>
+<button onclick="window.location.href='index.html'" style="margin-bottom: 10px; cursor: pointer; padding: 5px 10px;">🏠 Home</button>
+
+</html>
